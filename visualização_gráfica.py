@@ -26,22 +26,23 @@ def plot_trdf(G, trdf_sol, title="Grafo TRDF"):
     plt.title(title)
     plt.show()
 
-# Grafos de exemplo
-graphs = {
-    "C5": nx.cycle_graph(5),
-    "P5": nx.path_graph(5),
-    "K4": nx.complete_graph(4),
-    "Star": nx.star_graph(4)
-}
+if __name__ == "__main__":
+    # Grafos de exemplo
+    graphs = {
+        "C5": nx.cycle_graph(5),
+        "P5": nx.path_graph(5),
+        "K4": nx.complete_graph(4),
+        "Star": nx.star_graph(4)
+    }
 
-# Soluções exatas da TRDF
-trdf_solutions = {
-    "C5": {0:0, 1:0, 2:2, 3:0, 4:2},
-    "P5": {0:0, 1:2, 2:0, 3:0, 4:2},
-    "K4": {0:0, 1:0, 2:0, 3:2},
-    "Star": {0:2, 1:0, 2:0, 3:0, 4:0}
-}
+    # Soluções exatas da TRDF
+    trdf_solutions = {
+        "C5": {0:0, 1:0, 2:2, 3:0, 4:2},
+        "P5": {0:0, 1:2, 2:0, 3:0, 4:2},
+        "K4": {0:0, 1:0, 2:0, 3:2},
+        "Star": {0:2, 1:0, 2:0, 3:0, 4:0}
+    }
 
-# Plotando todos
-for name, G in graphs.items():
-    plot_trdf(G, trdf_solutions[name], title=f"{name} - TRDF ótimo")
+    # Plotando todos
+    for name, G in graphs.items():
+        plot_trdf(G, trdf_solutions[name], title=f"{name} - TRDF ótimo")
