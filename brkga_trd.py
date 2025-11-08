@@ -28,7 +28,7 @@ class BRKGA_TRD:
             return min_val + (max_val - min_val) * random.random()
 
         chrom = []
-        for f in f_list:
+        for v,f in f_list.items():
             if f == 0:
                 chrom.append(random_float(0, THRESHOLD_1))
             elif f == 1:
@@ -149,14 +149,8 @@ class BRKGA_TRD:
         f_list[0] = 2
         return f_list
 
-    def generate_population(self):
-        pop = []
-        while len(pop) < self.pop_size:
-            chrom = [random.random() for _ in range(self.n)]
-            f_list = self.decode(chrom)
-            f_list = self.repair(f_list)
-            pop.append(chrom)
-        return pop
+    def generate_population(self, quantity):
+        return self.heuristic_1(quantity)
 
     def biased_crossover(self, p1: List[float], p2: List[float]) -> List[float]:
         return [p1[i] if random.random() < self.bias else p2[i] for i in range(self.n)]
@@ -165,7 +159,7 @@ class BRKGA_TRD:
         return [[random.random() for _ in range(self.n)] for _ in range(self.mutant_size)]
 
     def run(self):
-        pop = self.generate_population()
+        pop = self.generate_population(self.pop_size)
         for gen in range(self.generations):
             # Avaliar população
             scored = [(self.fitness(c), c) for c in pop]
@@ -180,9 +174,8 @@ class BRKGA_TRD:
                 child = [p1[i] if random.random() < 0.7 else p2[i] for i in range(self.n)]
                 new_pop.append(child)
 
-            # Mutantes aleatórios
-            for _ in range(self.mutant_size):
-                new_pop.append([random.random() for _ in range(self.n)])
+            # Mutantes
+            new_pop.extend(self.generate_population(self.mutant_size))
 
             pop = new_pop
 
