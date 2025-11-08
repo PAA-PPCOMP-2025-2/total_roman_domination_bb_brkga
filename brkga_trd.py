@@ -7,6 +7,8 @@ from typing import List
 from dataset_reader import leitura_matriz_adjacencia
 from visualização_gráfica import plot_trdf
 
+STEP_GENS = 10
+MAX_GENS_WITHOUT_IMPROVEMENT = 100 # no artigo utilizou 363
 THRESHOLD_1 = 1/3
 THRESHOLD_2 = 2/3
 
@@ -97,30 +99,33 @@ class BRKGA_TRD:
 
         for i in range(quantity):
             f_list = {self.idx_to_node[i]: None for i in range(self.n)}
-            G_copy = self.G.copy()
 
-            while G_copy.number_of_nodes() > 0:
-                # etapa 1
-                vi = random.choice(list(G_copy.nodes()))
-                f_list[vi] = 2
+            while None in f_list.values():
+                # seleciona aleatoriamente dos que ainda não forma marcados
+                verticie_atual = random.choice([v for v,f in f_list.items() if f == None])
 
-                # etapa 2
-                vj = random.choice(list(G_copy.neighbors(vi)))
-                f_list[vj] = 1
-                for viz in G_copy.neighbors(vi):
-                    if f_list[viz] == None:
-                        f_list[viz] = 0
-                
-                # etapa 3
-                for viz in list(G_copy.neighbors(vi)):
-                    G_copy.remove_node(viz)
-                G_copy.remove_node(vi)
+                f_list_vizinhos = {n: f_list[n] for n in self.G.neighbors(verticie_atual)}
 
+                if len([f for f in f_list_vizinhos.values() if f == None]) > 0:
+                    # etapa 1
+                    vi = verticie_atual
+                    f_list[vi] = 2
+
+                    # etapa 2
+                    vj = random.choice(list(self.G.neighbors(vi)))
+                    f_list[vj] = 1
+                    for viz in self.G.neighbors(vi):
+                        if f_list[viz] == None:
+                            f_list[viz] = 0
+                    
+                    # etapa 3 nao foi necessaria nesta implementação, pois não é criado uma cópia do grafo
+                    
                 # etapa 4
-                for vl in list(G_copy.nodes()):
-                    if G_copy.degree(vl) == 0:
-                        f_list[vl] = 1
-                        G_copy.remove_node(vl)
+                else:
+                    f_list[verticie_atual] = 1
+                    
+                    if len([f for f in f_list_vizinhos.values() if f in (1,2)]) == 0:
+                        f_list[random.choice(list(self.G.neighbors(verticie_atual)))] = 1
 
             chrom_list.append(self.code(f_list))
 
@@ -159,6 +164,9 @@ class BRKGA_TRD:
         return [[random.random() for _ in range(self.n)] for _ in range(self.mutant_size)]
 
     def run(self):
+        best_fit = None
+        best_chrom = None
+        gens_without_improvement = 0
         pop = self.generate_population(self.pop_size)
         for gen in range(self.generations):
             # Avaliar população
@@ -179,9 +187,21 @@ class BRKGA_TRD:
 
             pop = new_pop
 
-            if gen % 100 == 0 or gen == self.generations-1:
-                best_fit, best_chrom = min((self.fitness(c), c) for c in pop)
-                print(f"Gen {gen:3d} | γtR ≈ {best_fit}")
+            if gen % STEP_GENS == 0 or gen == self.generations-1:
+                new_best_fit, new_best_chrom = min((self.fitness(c), c) for c in pop)
+                print(f"Gen {gen:3d} | γtR ≈ {new_best_fit}")
+
+                if not best_chrom is None and  new_best_fit == best_fit:
+                    gens_without_improvement += STEP_GENS
+
+                    if gens_without_improvement >= MAX_GENS_WITHOUT_IMPROVEMENT:
+                        print(f"Não foi encontrada uma solução melhor em {MAX_GENS_WITHOUT_IMPROVEMENT} gerações.")
+                        print("Interrompendo o processamento.")
+                        break
+                else:
+                    best_fit = new_best_fit
+                    best_chrom = new_best_chrom
+                    gens_without_improvement = 0
 
                 if self.G.number_of_nodes() >= 3 and best_fit <= 3:
                     print("Solução ótima encontrada!")
@@ -201,12 +221,18 @@ if __name__ == "__main__":
     }
 
     for name, G in graphs.items():
-        brkga_trd = BRKGA_TRD(G, pop_size=300, elite_frac=0.2, mutant_frac=0.2, generations=1000)
+        brkga_trd = BRKGA_TRD(
+            G, 
+            pop_size=int(G.number_of_nodes()/4.4056), 
+            elite_frac=0.2262, 
+            mutant_frac=0.2, 
+            generations=586
+        )
 
         t0 = time.time()
         w, sol = brkga_trd.run()
         t1 = time.time()
         print(f'Tempo de processamento: {t1-t0} segundos')
 
-        print(f"{name}: γtR = {w}, solução = {sol}")
-        plot_trdf(G, sol, title=name)
+        print(f"{name}: γtR = {w}, solução = {sol.values()}")
+        # plot_trdf(G, sol, title=name)
