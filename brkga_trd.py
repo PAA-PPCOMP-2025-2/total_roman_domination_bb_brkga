@@ -31,7 +31,7 @@ class BRKGA_TRD:
             return min_val + (max_val - min_val) * random.random()
 
         chrom = []
-        for v,f in f_list.items():
+        for f in f_list:
             if f == 0:
                 chrom.append(random_float(0, THRESHOLD_1))
             elif f == 1:
@@ -121,7 +121,7 @@ class BRKGA_TRD:
 
     def fitness(self, chrom: List[float]) -> float:
         f_list = self.decode(chrom)
-        f_list = self.repair(f_list)
+        # f_list = self.repair(f_list)
         total = sum(f_list)
         penalty = 0
         
@@ -144,16 +144,16 @@ class BRKGA_TRD:
     def heuristic_1(self, quantity):
         chrom_list = []
 
-        for i in range(quantity):
-            f_list = {self.idx_to_node[i]: None for i in range(self.n)}
+        for _ in range(quantity):
+            f_list = [None for _ in range(self.n)]
 
-            while None in f_list.values():
-                # seleciona aleatoriamente dos que ainda não forma marcados
-                verticie_atual = random.choice([v for v,f in f_list.items() if f == None])
+            while None in f_list:
+                # seleciona aleatoriamente dos que ainda não foram marcados
+                verticie_atual = random.choice([v for v,f in enumerate(f_list) if f == None])
 
-                f_list_vizinhos = {n: f_list[n] for n in self.G.neighbors(verticie_atual)}
+                f_dict_vizinhos = {n: f_list[n] for n in self.G.neighbors(verticie_atual)}
 
-                if len([f for f in f_list_vizinhos.values() if f == None]) > 0:
+                if len([f for f in f_dict_vizinhos.values() if f == None]) > 0:
                     # etapa 1
                     vi = verticie_atual
                     f_list[vi] = 2
@@ -171,7 +171,7 @@ class BRKGA_TRD:
                 else:
                     f_list[verticie_atual] = 1
                     
-                    if len([f for f in f_list_vizinhos.values() if f in (1,2)]) == 0:
+                    if len([f for f in f_dict_vizinhos.values() if f in (1,2)]) == 0:
                         f_list[random.choice(list(self.G.neighbors(verticie_atual)))] = 1
 
             chrom_list.append(self.code(f_list))
@@ -182,19 +182,19 @@ class BRKGA_TRD:
     def heuristic_2(self, quantity):
         chrom_list = []
 
-        for i in range(quantity):
-            f_list = {self.idx_to_node[i]: None for i in range(self.n)}
+        for _ in range(quantity):
+            f_list = [None for _ in range(self.n)]
 
             verticie_atual = 0
-            while None in f_list.values():
+            while None in f_list:
                 # seleciona o proximo que ainda nao foi marcado
                 # como os vertices ja estão ordenados pelo seu grau, então vai selecionar o vértice de maior grau que ainda não foi marcado
                 while f_list[verticie_atual] is not None:
                     verticie_atual += 1
 
-                f_list_vizinhos = {n: f_list[n] for n in self.G.neighbors(verticie_atual)}
+                f_dict_vizinhos = {n: f_list[n] for n in self.G.neighbors(verticie_atual)}
 
-                if len([f for f in f_list_vizinhos.values() if f == None]) > 0:
+                if len([f for f in f_dict_vizinhos.values() if f == None]) > 0:
                     # etapa 1
                     vi = verticie_atual
                     f_list[vi] = 2
@@ -212,7 +212,7 @@ class BRKGA_TRD:
                 else:
                     f_list[verticie_atual] = 1
                     
-                    if len([f for f in f_list_vizinhos.values() if f in (1,2)]) == 0:
+                    if len([f for f in f_dict_vizinhos.values() if f in (1,2)]) == 0:
                         f_list[random.choice(list(self.G.neighbors(verticie_atual)))] = 1
 
             chrom_list.append(self.code(f_list))
@@ -223,19 +223,19 @@ class BRKGA_TRD:
     def heuristic_3(self, quantity):
         chrom_list = []
 
-        for i in range(quantity):
-            f_list = {self.idx_to_node[i]: None for i in range(self.n)}
+        for _ in range(quantity):
+            f_list = [None for _ in range(self.n)]
 
             verticie_atual = 0
-            while None in f_list.values():
+            while None in f_list:
                 # seleciona o proximo que ainda nao foi marcado
                 # como os vertices ja estão ordenados pelo seu grau, então vai selecionar o vértice de maior grau que ainda não foi marcado
                 while f_list[verticie_atual] is not None:
                     verticie_atual += 1
 
-                f_list_vizinhos = {n: f_list[n] for n in self.G.neighbors(verticie_atual)}
+                f_dict_vizinhos = {n: f_list[n] for n in self.G.neighbors(verticie_atual)}
 
-                if len([f for f in f_list_vizinhos.values() if f == None]) > 0:
+                if len([f for f in f_dict_vizinhos.values() if f == None]) > 0:
                     # etapa 1
                     vi = verticie_atual
                     f_list[vi] = 2
@@ -253,7 +253,7 @@ class BRKGA_TRD:
                 else:
                     f_list[verticie_atual] = 1
                     
-                    if len([f for f in f_list_vizinhos.values() if f in (1,2)]) == 0:
+                    if len([f for f in f_dict_vizinhos.values() if f in (1,2)]) == 0:
                         f_list[min(list(self.G.neighbors(verticie_atual)))] = 1
 
             chrom_list.append(self.code(f_list))
@@ -270,8 +270,8 @@ class BRKGA_TRD:
     def heuristic_5(self, quantity):
         chrom_list = []
 
-        for i in range(quantity):
-            f_list = {self.idx_to_node[i]: 1 for i in range(self.n)}
+        for _ in range(quantity):
+            f_list = [1 for _ in range(self.n)]
 
             chrom_list.append(self.code(f_list))
 
@@ -407,6 +407,7 @@ class BRKGA_TRD:
                 p1 = random.choice(elites)
                 p2 = random.choice(pop)
                 child = [p1[i] if random.random() < 0.7 else p2[i] for i in range(self.n)]
+                child = self.code(self.repair(self.decode(child)))
                 new_pop.append(child)
 
             # Mutantes
@@ -414,8 +415,9 @@ class BRKGA_TRD:
 
             pop = new_pop
 
+            current_scored = [(self.fitness(c), c) for c in pop]
+
             if gen % STEP_GENS == 0 or gen == self.generations-1:
-                current_scored = [(self.fitness(c), c) for c in pop]
                 new_best_fit, new_best_chrom = min(current_scored)
                 print(f"Gen {gen:3d} | γtR ≈ {new_best_fit}")
 
