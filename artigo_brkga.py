@@ -1,10 +1,5 @@
-# brkga_trd.py
 import random
-import time
 from typing import List
-
-from dataset_reader import leitura_matriz_adjacencia
-from brkga import BRKGA
 
 THRESHOLD_1 = 1/3
 THRESHOLD_2 = 2/3
@@ -240,35 +235,3 @@ def generate_population_graph(adjacencias):
         return pop
 
     return generate_population
-
-if __name__ == "__main__":
-    graphs = {
-        # "MANN-a81": leitura_matriz_adjacencia("datasets/DIMACS/MANN-a81.mtx"),            # melhor: 5
-        "C1000-9": leitura_matriz_adjacencia("datasets/DIMACS/C1000-9.mtx"),              # melhor: 5
-        # "johnson8-2-4": leitura_matriz_adjacencia("datasets/DIMACS/johnson8-2-4.mtx"),    # melhor: 7
-        # "MANN-a9": leitura_matriz_adjacencia("datasets/DIMACS/MANN-a9.mtx"),              # melhor: 5
-    }
-
-    for name, graph in graphs.items():
-        n = len(graph)
-
-        ag = BRKGA(
-            n = n,
-            pop_size=int(n/4.4056), 
-            elite_frac=0.2262, 
-            mutant_frac=0.2, 
-            generations=1000
-        )
-
-        ag.fitness = fitness
-        ag.generate_population = generate_population_graph(graph)
-        ag.repair = repair_graph(graph)
-
-        t0 = time.time()
-        w, sol = ag.run()
-        t1 = time.time()
-        print(f'Tempo de processamento: {t1-t0} segundos')
-
-        print(f"{name}: γtR = {w}")
-
-        ordem = sorted(range(n), key=lambda x: sol[x])

@@ -4,14 +4,15 @@ from typing import List
 STEP_GENS = 10
 
 class BRKGA:
-    def __init__(self, n, pop_size, elite_frac, mutant_frac, generations, max_gens_without_improvement=100, optimal_solution=None):
+    def __init__(self, n, pop_size, elite_frac, mutant_frac, generations, max_gens_without_improvement=100, max_optimal_solution=None, print_generations=False):
         self.n = n
         self.pop_size = pop_size
         self.elite_size = int(pop_size * elite_frac)
         self.mutant_size = int(pop_size * mutant_frac)
         self.generations = generations
         self.max_gens_without_improvement = max_gens_without_improvement
-        self.optimal_solution = optimal_solution
+        self.max_optimal_solution = max_optimal_solution
+        self.print_generations = print_generations
 
     # def decode(self, chrom):
     #     return chrom
@@ -74,14 +75,15 @@ class BRKGA:
                 print("Finalizando o código.")
                 break
 
-            if best_fit == self.optimal_solution:
+            if best_fit <= self.max_optimal_solution:
                 print("Solução ótima encontrada!")
                 break
 
-            if gen % STEP_GENS == 0 or gen == self.generations-1:
+            if self.print_generations and gen % STEP_GENS == 0 or gen == self.generations-1:
                 print(f"Gen {gen:3d} | best fit = {best_fit}")
         
-        print(f"Gen {gen:3d} | best fit = {best_fit}")
+        if self.print_generations:
+            print(f"Gen {gen:3d} | best fit = {best_fit}")
 
         return best_fit, best_chrom
 

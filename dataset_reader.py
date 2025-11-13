@@ -1,12 +1,19 @@
-import networkx as nx
 from collections import defaultdict
+import os
 
-"""
-    Lê um arquivo no formato de matriz (.mtx) e retorna uma lista de adjacências
-    Pressupõe:
-        Grafo não dirigido
-        Índices do arquivo começam em 1, sendo necessário ajustar para 0 na lista de adjacências
-"""
+def listar_arquivos_diretorio(diretorio):
+    grafos = {}
+
+    if not os.path.isdir(diretorio):
+        raise ValueError(f"Caminho inválido: {diretorio}")
+
+    for nome in sorted(os.listdir(diretorio)):
+        caminho = os.path.join(diretorio, nome)
+        if os.path.isfile(caminho):
+            grafos[nome] = leitura_matriz_adjacencia(caminho)
+
+    return grafos
+
 def leitura_matriz_adjacencia(arquivo):
     adjacencias = defaultdict(list)
     with open(arquivo, "r") as file:
@@ -34,23 +41,6 @@ def leitura_matriz_adjacencia(arquivo):
     n = max(adjacencias) + 1
 
     grafo = [adjacencias[i] for i in range(n)]
-
-    # # O objetivo é ordenar o grafo pelos vértices com maior número de arestas
-    # # Como eles tem maior impacto na construção da solução, eles podem impor mais restrições
-
-    # # Ordenar vértices pelo grau decrescente
-    # ordem = sorted(range(n), key=lambda x: len(grafo[x]), reverse=True)
-
-    # # Cria um mapeamento antigo índice -> novo índice
-    # mapeamento = {antigo: novo for novo, antigo in enumerate(ordem)}
-
-    # # Reorganiza a lista de adjacência com base na nova ordem e atualiza os vizinhos
-    # grafo_ordenado = []
-    # for i in ordem:
-    #     novos_vizinhos = [mapeamento[v] for v in grafo[i]]
-    #     grafo_ordenado.append(novos_vizinhos)
-
-    # g = nx.from_dict_of_lists({i: grafo_ordenado[i] for i in range(len(grafo_ordenado))})
 
     print(f"Leitura concluída [{arquivo}]")
 
