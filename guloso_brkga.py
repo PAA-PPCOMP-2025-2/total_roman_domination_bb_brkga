@@ -1,37 +1,39 @@
 def fitness_guloso(adjacencias):
+    """
+    Usa cromossomo como chave → ordena vértices → aplica guloso.
+    """
     def guloso(chrom):
-        ordem = sorted(range(len(adjacencias)), key=lambda x: chrom[x])
-
-        rotulos = [None for _ in adjacencias]
-
-        for i in ordem:
-            if rotulos[i] is not None: continue
-
-            rotulos[i] = 2
-            vizinhos = adjacencias[i]
-            vizinhos_ordenados = sorted(vizinhos, key=lambda x: ordem[x])
-
-            rotulos[vizinhos_ordenados[0]] = 2
-
-            vizinhos2 = adjacencias[vizinhos_ordenados[0]]
-            vizinho_marcado = False
-            for vizinho2 in vizinhos2:
-                if rotulos[vizinho2] is None:
-                    rotulos[vizinho2] = 0
-                    vizinho_marcado = True
+        n = len(adjacencias)
+        rotulos = [None] * n
+        
+        # 1. Ordena vértices por chave (menor primeiro)
+        ordem = sorted(range(n), key=lambda x: chrom[x])
+        
+        for v in ordem:
+            if rotulos[v] is not None:
+                continue
+                
+            # Etapa 1: f(v) = 2
+            rotulos[v] = 2
             
-            if not vizinho_marcado:
-                rotulos[vizinhos_ordenados[0]] = 1
-
-            vizinho_marcado = False
-            for vizinho in vizinhos_ordenados[1:]:
-                if rotulos[vizinho] is None:
-                    rotulos[vizinho] = 0
-                    vizinho_marcado = True
+            # Etapa 2: vizinho com menor chave → f=1 (apoio)
+            vizinhos = adjacencias[v]
+            if not vizinhos:
+                continue
+                
+            vj = min(vizinhos, key=lambda x: chrom[x])  # menor chave
+            rotulos[vj] = 1
             
-            if not vizinho_marcado:
-                rotulos[i] = 1
-
-        return sum(rotulos)
+            # Etapa 3: todos os outros vizinhos → f=0
+            for u in vizinhos:
+                if rotulos[u] is None:
+                    rotulos[u] = 0
+        
+        # Preenche vértices não alcançados
+        for i in range(n):
+            if rotulos[i] is None:
+                rotulos[i] = 0
+                
+        return rotulos, sum(rotulos)
     
     return guloso
