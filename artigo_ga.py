@@ -1,5 +1,6 @@
 import random
 from typing import List
+from utils_tdr import adjacency_list_is_valid_trdf
 
 STEP_GENS = 10
 
@@ -125,8 +126,7 @@ def heuristic_3(adjacencias, quantity):
 
 # HEURÍSTICA 4 (ARTIGO)
 def heuristic_4(adjacencias, quantity):
-    # Não está claro como foi implementada essa heurística no artigo original
-        chrom_list = []
+    chrom_list = []
     for _ in range(quantity):
         f_list = [None for _ in adjacencias]
         verticie_atual = 0
@@ -194,7 +194,7 @@ def heuristic_4(adjacencias, quantity):
                     temp[u1] = max(temp[u1], 1)
                     temp[u2] = max(temp[u2], 1)
                     # Verificar se ainda é TRDF
-                    if is_valid_trdf(temp, adjacencias) and sum(temp) < sum(f_list):
+                    if adjacency_list_is_valid_trdf(adjacencias, temp) and sum(temp) < sum(f_list):
                         f_list = temp
 
         chrom_list.append(f_list)
@@ -223,7 +223,7 @@ def generate_population_graph(adjacencias):
         pop.extend(heuristic_1(adjacencias, int(quantity * proporcao_heuristica_1)))
         pop.extend(heuristic_2(adjacencias, int(quantity * proporcao_heuristica_2)))
         pop.extend(heuristic_3(adjacencias, int(quantity * proporcao_heuristica_3)))
-        pop.extend(heuristic_4(adjacencias, int(quantity * proporcao_heuristica_4))) # Não implementada, utilizando a heurística 1
+        pop.extend(heuristic_4(adjacencias, int(quantity * proporcao_heuristica_4)))
         pop.extend(heuristic_5(adjacencias, int(quantity * proporcao_heuristica_5)))
 
         # Devido arredondamentos, pode ser que a população gerada seja menor que o tamanho desejado

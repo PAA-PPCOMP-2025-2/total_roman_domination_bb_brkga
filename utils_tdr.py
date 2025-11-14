@@ -1,4 +1,4 @@
-def adjacency_list_is_valid_trdf(adjacency, f_list):
+def adjacency_list_is_valid_trdf(adjacency, f_list, print_debug=False):
     n = len(adjacency)
 
     for v in range(n):
@@ -9,7 +9,8 @@ def adjacency_list_is_valid_trdf(adjacency, f_list):
                 if (f_list[u] >= 1):
                     possui_vizinho_apoio = True
             if not possui_vizinho_apoio:
-                print(f'v = {v} => F(v) = {f_list[v]} => vizinhos(v) = {[f_list[k] for k in adjacency[v]]}')
+                if print_debug:
+                    print(f'v = {v} => F(v) = {f_list[v]} => vizinhos(v) = {[f_list[k] for k in adjacency[v]]}')
                 return False
 
         # F(v) = 0
@@ -26,7 +27,8 @@ def adjacency_list_is_valid_trdf(adjacency, f_list):
                     print(f_list)
                     exit(1)
             if not possui_vizinho_apoio:
-                print(f'v = {v} => F(v) = {f_list[v]} => vizinhos(v) = {[f_list[k] for k in adjacency[v]]}')
+                if print_debug:
+                    print(f'v = {v} => F(v) = {f_list[v]} => vizinhos(v) = {[f_list[k] for k in adjacency[v]]}')
                 return False
 
     return True

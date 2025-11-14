@@ -67,7 +67,7 @@ def run_algoritmo_genetico(grafo, metodo):
     print(f"γtR = {w}")
     print(f'Tempo de processamento: {t1-t0} segundos')
 
-    if not adjacency_list_is_valid_trdf(grafo, sol):
+    if not adjacency_list_is_valid_trdf(grafo, sol, print_debug=True):
         print("solucao invalida")
         print(sol)
         exit(1)
