@@ -30,7 +30,8 @@ def leitura_matriz_adjacencia(arquivo):
                 continue
 
             # conversão para índices de base zero
-            i, j = int(parte[0]) - 1, int(parte[1]) - 1
+            # i, j = int(parte[0]) - 1, int(parte[1]) - 1
+            i, j = int(parte[0]), int(parte[1])
 
             # ignora o auto loop
             if i != j:
