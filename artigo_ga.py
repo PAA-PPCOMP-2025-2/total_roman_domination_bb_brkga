@@ -126,8 +126,79 @@ def heuristic_3(adjacencias, quantity):
 # HEURÍSTICA 4 (ARTIGO)
 def heuristic_4(adjacencias, quantity):
     # Não está claro como foi implementada essa heurística no artigo original
+        chrom_list = []
+    for _ in range(quantity):
+        f_list = [None for _ in adjacencias]
+        verticie_atual = 0
 
-    return heuristic_1(adjacencias, quantity)
+        # === ETAPA 1: Construir solução inicial com Heurística 3 ===
+        while None in f_list:
+            while verticie_atual < len(adjacencias) and f_list[verticie_atual] is not None:
+                verticie_atual += 1
+            if verticie_atual >= len(adjacencias):
+                break
+
+            f_dict_vizinhos = {n: f_list[n] for n in adjacencias[verticie_atual]}
+            unmarked_neighbors = [n for n in adjacencias[verticie_atual] if f_list[n] is None]
+
+            if unmarked_neighbors:
+                # Etapa 1: f(vi) = 2
+                vi = verticie_atual
+                f_list[vi] = 2
+
+                # Etapa 2: Escolher vizinho com maior grau entre os não marcados
+                vj = max(unmarked_neighbors, key=lambda x: len(adjacencias[x]))
+                f_list[vj] = 1
+
+                # Etapa 3: Marcar outros vizinhos com 0
+                for viz in adjacencias[vi]:
+                    if f_list[viz] is None:
+                        f_list[viz] = 0
+            else:
+                # Se não tem vizinho não marcado → coloca f=1 e garante apoio
+                f_list[verticie_atual] = 1
+                if all(f_list[n] == 0 for n in adjacencias[verticie_atual]):
+                    # Escolhe o vizinho de menor índice para apoio
+                    f_list[min(adjacencias[verticie_atual])] = 1
+
+        # === ETAPA 2: MELHORIA PARA VÉRTICES ISOLADOS (Heurística 4) ===
+        # Identificar vértices com f(v) = 0 (isolados)
+        isolados = [i for i, f in enumerate(f_list) if f == 0]
+        if len(isolados) > 0:
+            # Para cada isolado, garantir que tenha um vizinho com f=2
+            for v in isolados:
+                vizinhos = adjacencias[v]
+                # Se nenhum vizinho tem f=2 → escolher um com maior grau
+                if not any(f_list[u] == 2 for u in vizinhos):
+                    # Escolher vizinho com maior grau
+                    u = max(vizinhos, key=lambda x: len(adjacencias[x]))
+                    f_list[u] = 2  # Mover ou adicionar f=2
+
+                    # Garantir que o novo f=2 tenha apoio (f>0)
+                    apoio = [n for n in adjacencias[u] if f_list[n] > 0]
+                    if not apoio:
+                        # Escolher um vizinho qualquer para apoio
+                        apoio_candidato = random.choice(adjacencias[u])
+                        f_list[apoio_candidato] = max(f_list[apoio_candidato] or 0, 1)
+
+        # === ETAPA 3: TENTAR REDUZIR PESO (substituir f=2 por dois f=1) ===
+        for i in range(len(f_list)):
+            if f_list[i] == 2:
+                vizinhos = adjacencias[i]
+                candidatos_f1 = [u for u in vizinhos if f_list[u] <= 1]
+                if len(candidatos_f1) >= 2:
+                    u1, u2 = sorted(candidatos_f1, key=lambda x: len(adjacencias[x]), reverse=True)[:2]
+                    # Testar substituição
+                    temp = f_list.copy()
+                    temp[i] = 0
+                    temp[u1] = max(temp[u1], 1)
+                    temp[u2] = max(temp[u2], 1)
+                    # Verificar se ainda é TRDF
+                    if is_valid_trdf(temp, adjacencias) and sum(temp) < sum(f_list):
+                        f_list = temp
+
+        chrom_list.append(f_list)
+    return chrom_list
 
 # HEURÍSTICA 5 (ARTIGO)
 def heuristic_5(adjacencias, quantity):
