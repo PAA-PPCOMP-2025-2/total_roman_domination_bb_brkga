@@ -64,6 +64,9 @@ def run_algoritmo_genetico(grafo, metodo):
     w, sol = ag.run()
     t1 = time.time()
 
+    if metodo == "guloso_brkga":
+        sol = guloso_brkga.decode(grafo, sol)
+
     print(f"γtR = {w}")
     print(f'Tempo de processamento: {t1-t0} segundos')
 
