@@ -1,4 +1,6 @@
-def decode(adjacencias, chrom):
+from utils_tdr import adjacency_list_is_valid_trdf
+
+def decode_old(adjacencias, chrom):
     ordem = sorted(range(len(adjacencias)), key=lambda x: chrom[x])
 
     rotulos = [None for _ in adjacencias]
@@ -30,6 +32,24 @@ def decode(adjacencias, chrom):
         
         if not vizinho_marcado:
             rotulos[i] = 1
+    
+    return rotulos
+
+def decode(adjacencias, chrom):
+    ordem = sorted(range(len(adjacencias)), key=lambda x: chrom[x])
+
+    rotulos = [0 for _ in chrom]
+
+    for i in range(len(chrom)):
+        rotulos[ordem[i]] = 2
+        if adjacency_list_is_valid_trdf(adjacencias, rotulos):
+            break
+    
+    for j in range(i,-1,-1):
+        rotulos[ordem[j]] = 1
+        if not adjacency_list_is_valid_trdf(adjacencias, rotulos):
+            rotulos[ordem[j]] = 2
+            break
     
     return rotulos
 

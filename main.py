@@ -33,11 +33,11 @@ def run_algoritmo_genetico(grafo, metodo):
     elif metodo == "guloso_brkga":
         ag = BRKGA(
             n = n,
-            pop_size=50, 
+            pop_size=400, 
             elite_frac=0.2, 
-            mutant_frac=0.5, 
+            mutant_frac=0.2, 
             generations=1000,
-            max_gens_without_improvement=100,
+            max_gens_without_improvement=300,
             max_optimal_solution=3,
             print_generations=False
         )
